@@ -1,0 +1,382 @@
+{
+  "info": {
+    "name": "Ticket System API",
+    "_postman_id": "ticket-system-2024",
+    "description": "Colección completa para probar el sistema de tickets. Importar en Postman y configurar la variable baseUrl.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  pm.test('Login exitoso y token guardado', () => pm.expect(json.token).to.be.a('string'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Credenciales incorrectas",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrongpassword\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Obtener Perfil",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/profile", "host": ["{{baseUrl}}"], "path": ["auth", "profile"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios",
+      "item": [
+        {
+          "name": "Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carlos\",\n  \"last_name\": \"Ramírez\",\n  \"username\": \"cramirez\",\n  \"email\": \"carlos@ejemplo.com\",\n  \"career_id\": 1,\n  \"password\": \"Secure123!\",\n  \"rol\": \"dev\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Crear Usuario - Email duplicado (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Otro\",\n  \"last_name\": \"User\",\n  \"username\": \"admin\",\n  \"email\": \"admin@sistema.com\",\n  \"password\": \"123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Obtener Todos los Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=10&sort=name&order=ASC",
+              "host": ["{{baseUrl}}"], "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sort", "value": "name" },
+                { "key": "order", "value": "ASC" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/users/1", "host": ["{{baseUrl}}"], "path": ["users", "1"] }
+          }
+        },
+        {
+          "name": "Filtrar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/users/filter?rol=dev",
+              "host": ["{{baseUrl}}"], "path": ["users", "filter"],
+              "query": [
+                { "key": "rol", "value": "dev" },
+                { "key": "name", "value": "", "disabled": true },
+                { "key": "email", "value": "", "disabled": true },
+                { "key": "career", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Usuario (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Carlos Actualizado\",\n  \"last_name\": \"Ramírez G\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users/3", "host": ["{{baseUrl}}"], "path": ["users", "3"] }
+          }
+        },
+        {
+          "name": "Cambiar Estado Usuario (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"active\": false\n}" },
+            "url": { "raw": "{{baseUrl}}/users/3/status", "host": ["{{baseUrl}}"], "path": ["users", "3", "status"] }
+          }
+        },
+        {
+          "name": "Eliminar Usuario (Lógico)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/users/3", "host": ["{{baseUrl}}"], "path": ["users", "3"] }
+          }
+        },
+        {
+          "name": "Eliminar Usuario (Físico)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/users/3?hard=true",
+              "host": ["{{baseUrl}}"], "path": ["users", "3"],
+              "query": [{ "key": "hard", "value": "true" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Carreras",
+      "item": [
+        {
+          "name": "Obtener Carreras",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/careers", "host": ["{{baseUrl}}"], "path": ["careers"] }
+          }
+        },
+        {
+          "name": "Filtrar Carreras",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/careers/filter?active=true",
+              "host": ["{{baseUrl}}"], "path": ["careers", "filter"],
+              "query": [{ "key": "active", "value": "true" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Tipos de Ticket",
+      "item": [
+        {
+          "name": "Obtener Tipos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/types", "host": ["{{baseUrl}}"], "path": ["types"] }
+          }
+        },
+        {
+          "name": "Obtener Tipo por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/types/1", "host": ["{{baseUrl}}"], "path": ["types", "1"] }
+          }
+        },
+        {
+          "name": "Crear Tipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"type\": \"Mejora\",\n  \"description\": \"Mejora en proceso existente\",\n  \"area\": \"Calidad\"\n}" },
+            "url": { "raw": "{{baseUrl}}/types", "host": ["{{baseUrl}}"], "path": ["types"] }
+          }
+        },
+        {
+          "name": "Actualizar Tipo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Descripción actualizada\"\n}" },
+            "url": { "raw": "{{baseUrl}}/types/1", "host": ["{{baseUrl}}"], "path": ["types", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar Tipo",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/types/4", "host": ["{{baseUrl}}"], "path": ["types", "4"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Tickets",
+      "item": [
+        {
+          "name": "Crear Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Fallo en módulo de pagos\",\n  \"description\": \"El sistema no procesa tarjetas Visa\",\n  \"type_id\": 1,\n  \"priority\": \"high\"\n}" },
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          }
+        },
+        {
+          "name": "Obtener Todos los Tickets",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/tickets", "host": ["{{baseUrl}}"], "path": ["tickets"] }
+          }
+        },
+        {
+          "name": "Obtener Ticket por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/tickets/1", "host": ["{{baseUrl}}"], "path": ["tickets", "1"] }
+          }
+        },
+        {
+          "name": "Filtrar Tickets",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/tickets/filter?status=open&priority=high",
+              "host": ["{{baseUrl}}"], "path": ["tickets", "filter"],
+              "query": [
+                { "key": "status", "value": "open" },
+                { "key": "priority", "value": "high" },
+                { "key": "type_id", "value": "", "disabled": true },
+                { "key": "user_id", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tickets por Usuario",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/tickets/user/3", "host": ["{{baseUrl}}"], "path": ["tickets", "user", "3"] }
+          }
+        },
+        {
+          "name": "Actualizar Ticket",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"priority\": \"low\",\n  \"description\": \"Descripción actualizada\"\n}" },
+            "url": { "raw": "{{baseUrl}}/tickets/1", "host": ["{{baseUrl}}"], "path": ["tickets", "1"] }
+          }
+        },
+        {
+          "name": "Cambiar Estado Ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"in_progress\"\n}" },
+            "url": { "raw": "{{baseUrl}}/tickets/1/status", "host": ["{{baseUrl}}"], "path": ["tickets", "1", "status"] }
+          }
+        },
+        {
+          "name": "Asignar Ticket a Dev",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/tickets/1/assign", "host": ["{{baseUrl}}"], "path": ["tickets", "1", "assign"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. KPI",
+      "item": [
+        {
+          "name": "Tickets por Estado",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/kpi/tickets/status", "host": ["{{baseUrl}}"], "path": ["kpi", "tickets", "status"] }
+          }
+        },
+        {
+          "name": "Tickets por Usuario",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/kpi/tickets/user", "host": ["{{baseUrl}}"], "path": ["kpi", "tickets", "user"] }
+          }
+        },
+        {
+          "name": "Tiempo Promedio Resolución",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/kpi/tickets/avg-time", "host": ["{{baseUrl}}"], "path": ["kpi", "tickets", "avg-time"] }
+          }
+        }
+      ]
+    }
+  ]
+}
