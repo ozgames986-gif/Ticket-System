@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
-// POST /auth/login
 const login = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -14,10 +13,6 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
 
     const user = rows[0];
-
-    if (!user.active)
-      return res.status(401).json({ error: 'Usuario inactivo' });
-
     if (user.failed_attempts >= 5)
       return res.status(401).json({ error: 'Usuario bloqueado por demasiados intentos fallidos' });
 
@@ -27,7 +22,6 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas', failed_attempts: user.failed_attempts + 1 });
     }
 
-    // Reset intentos al hacer login correcto
     await pool.query('UPDATE users SET failed_attempts = 0 WHERE id = ?', [user.id]);
 
     const token = jwt.sign(
@@ -41,8 +35,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Error del servidor', detail: err.message });
   }
 };
-
-// GET /auth/profile
 const profile = async (req, res) => {
   try {
     const [rows] = await pool.query(

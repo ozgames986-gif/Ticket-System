@@ -1,6 +1,4 @@
--- =============================================
--- TICKET SYSTEM - Base de Datos
--- =============================================
+
 
 CREATE DATABASE IF NOT EXISTS ticket_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE ticket_system;

@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// GET /careers
 const getCareers = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM careers');
@@ -10,7 +9,6 @@ const getCareers = async (req, res) => {
   }
 };
 
-// GET /careers/filter
 const filterCareers = async (req, res) => {
   const { name, active } = req.query;
   let query = 'SELECT * FROM careers WHERE 1=1';

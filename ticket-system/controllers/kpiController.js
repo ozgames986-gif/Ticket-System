@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// GET /kpi/tickets/status
 const ticketsByStatus = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -12,7 +11,6 @@ const ticketsByStatus = async (req, res) => {
   }
 };
 
-// GET /kpi/tickets/user
 const ticketsByUser = async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -25,16 +23,14 @@ const ticketsByUser = async (req, res) => {
     res.status(500).json({ error: 'Error del servidor', detail: err.message });
   }
 };
-
-// GET /kpi/tickets/avg-time
 const avgResolutionTime = async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT 
         ROUND(AVG(TIMESTAMPDIFF(HOUR, created_at, NOW())), 2) AS avg_hours_open,
         COUNT(*) AS total
-       FROM tickets WHERE status = 'closed'`
-    );
+       FROM tickets WHERE status = 'closed'` 
+    ); n
     res.json({ data: rows[0] });
   } catch (err) {
     res.status(500).json({ error: 'Error del servidor', detail: err.message });
